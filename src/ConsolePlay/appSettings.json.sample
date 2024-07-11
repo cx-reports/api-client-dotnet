@@ -1,0 +1,7 @@
+﻿{
+    "CxReports": {
+        "BaseUrl": "[address-of-your-server]",
+        "AuthToken": "[address-of-your-server]",
+        "DefaultWorkspaceId": null // optional workspace id or code
+    }
+}

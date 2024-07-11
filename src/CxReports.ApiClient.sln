@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34622.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CxReports.ApiClient", "CxReports.ApiClient\CxReports.ApiClient.csproj", "{2CFDF7EA-7B74-4EA4-A8A2-7C9F3719746B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsolePlay", "ConsolePlay\ConsolePlay.csproj", "{774D8D26-1A90-424C-865E-EEB4BDD9DC84}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2CFDF7EA-7B74-4EA4-A8A2-7C9F3719746B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CFDF7EA-7B74-4EA4-A8A2-7C9F3719746B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CFDF7EA-7B74-4EA4-A8A2-7C9F3719746B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CFDF7EA-7B74-4EA4-A8A2-7C9F3719746B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{774D8D26-1A90-424C-865E-EEB4BDD9DC84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{774D8D26-1A90-424C-865E-EEB4BDD9DC84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{774D8D26-1A90-424C-865E-EEB4BDD9DC84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{774D8D26-1A90-424C-865E-EEB4BDD9DC84}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6F68B0AA-31F2-4CD9-B843-DAEEDA467B99}
+	EndGlobalSection
+EndGlobal
