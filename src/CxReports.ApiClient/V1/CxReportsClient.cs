@@ -14,19 +14,19 @@ using CxReports.ApiClient.V1.Models;
 
 namespace CxReports.ApiClient.V1
 {
-    public class WorkspaceIdParams
+    public class WorkspaceId
     {
-        public int? WorkspaceId { get; set; }
-        public string? WorkspaceCode { get; set; }
+        public int? Id { get; set; }
+        public string? Code { get; set; }
     }
 
-    public class ReportIdParams
+    public class ReportId
     {
-        public int? ReportId { get; set; }
-        public string? ReportTypeCode { get; set; }
+        public int? Id { get; set; }
+        public string? TypeCode { get; set; }
     }
 
-    public class ReportPreviewParams
+    public class ReportQueryParams
     {
         public JsonObject? Params { get; set; }
         public JsonObject? Data { get; set; }
@@ -46,7 +46,7 @@ namespace CxReports.ApiClient.V1
             _config = config;
         }
 
-        protected string ResolveEndpointURL(
+        protected string ResolveEndpointUrl(
             string endpointPath,
             Dictionary<string, object?>? query = null
         )
@@ -78,59 +78,56 @@ namespace CxReports.ApiClient.V1
             return _config.DefaultWorkspaceId;
         }
 
-        protected string GetWorkspaceId(WorkspaceIdParams? workspace = null)
+        protected string GetWorkspaceId(WorkspaceId? workspace = null)
         {
-            return workspace?.WorkspaceId?.ToString()
-                ?? workspace?.WorkspaceCode
-                ?? GetDefaultWorkspaceId();
+            return workspace?.Id?.ToString() ?? workspace?.Code ?? GetDefaultWorkspaceId();
         }
 
-        public async Task<IList<Report>> GetReports(
-            WorkspaceIdParams? workspace,
+        public async Task<IList<Report>> GetReportsAsync(
+            WorkspaceId? workspace,
             Dictionary<string, object?>? query = null,
             CancellationToken cancellationToken = default
         )
         {
             string workspaceId = GetWorkspaceId(workspace);
             return await GET<IList<Report>>(
-                ResolveEndpointURL($"ws/{Uri.EscapeDataString(workspaceId)}/reports", query),
+                ResolveEndpointUrl($"ws/{Uri.EscapeDataString(workspaceId)}/reports", query),
                 cancellationToken
             );
         }
 
-        protected string GetReportId(ReportIdParams? report)
+        protected string GetReportId(ReportId? report)
         {
-            string? reportId = report?.ReportId?.ToString() ?? report?.ReportTypeCode;
-            if (reportId == null)
-                throw new CxReportsException(
+            string? reportId = report?.Id?.ToString() ?? report?.TypeCode;
+            return reportId
+                ?? throw new CxReportsException(
                     "Invalid report identification. Missing either reportId or reportType."
                 );
-            return reportId;
         }
 
-        protected Dictionary<string, object?> EncodeReportPreviewParams(ReportPreviewParams @params)
+        protected Dictionary<string, object?>? EncodeReportQueryParams(ReportQueryParams? query)
         {
-            return new Dictionary<string, object?>
-            {
-                {
-                    "params",
-                    @params.Params != null ? JsonSerializer.Serialize(@params.Params) : null
-                },
-                { "data", @params.Data != null ? JsonSerializer.Serialize(@params.Data) : null },
-                { "nonce", @params.Nonce },
-                { "tempDataId", @params.TempDataId?.ToString() }
-            };
+            var result = new Dictionary<string, object?>();
+            if (query == null)
+                return null;
+
+            if (query.Params != null)
+                result["params"] = JsonSerializer.Serialize(query.Params);
+            if (query.Data != null)
+                result["data"] = JsonSerializer.Serialize(query.Data);
+            if (query.Nonce != null)
+                result["nonce"] = query.Nonce;
+            if (query.TempDataId != null)
+                result["tempDataId"] = query.TempDataId.ToString();
+
+            return result.Count > 0 ? result : null;
         }
 
-        public string GetReportPreviewURL(
-            WorkspaceIdParams workspaceParams,
-            ReportIdParams reportParams,
-            ReportPreviewParams previewParams
-        )
+        public string GetReportPreviewUrl(ReportParams reportParams)
         {
-            string workspaceId = GetWorkspaceId(workspaceParams);
-            string reportId = GetReportId(reportParams);
-            var query = EncodeReportPreviewParams(previewParams);
+            string workspaceId = GetWorkspaceId(reportParams.Workspace);
+            string reportId = GetReportId(reportParams.Report);
+            var query = EncodeReportQueryParams(reportParams.QueryParams);
             return ResolveEndpointURLWithApiPath(
                 "/",
                 $"ws/{Uri.EscapeDataString(workspaceId)}/reports/{Uri.EscapeDataString(reportId)}/preview",
@@ -138,36 +135,29 @@ namespace CxReports.ApiClient.V1
             );
         }
 
-        public string GetReportPdfDownloadURL(
-            WorkspaceIdParams workspaceParams,
-            ReportIdParams reportParams,
-            ReportPreviewParams previewParams
-        )
+        public string GetReportPdfDownloadUrl(ReportParams reportParams)
         {
-            string workspaceId = GetWorkspaceId(workspaceParams);
-            string reportId = GetReportId(reportParams);
-            var query = EncodeReportPreviewParams(previewParams);
-            return ResolveEndpointURL(
+            string workspaceId = GetWorkspaceId(reportParams.Workspace);
+            string reportId = GetReportId(reportParams.Report);
+            var query = EncodeReportQueryParams(reportParams.QueryParams);
+            return ResolveEndpointUrl(
                 $"ws/{Uri.EscapeDataString(workspaceId)}/reports/{Uri.EscapeDataString(reportId)}/pdf",
                 query
             );
         }
 
-        public async Task<HttpResponseMessage> DownloadPDF(
-            WorkspaceIdParams workspaceParams,
-            ReportIdParams reportParams,
-            ReportPreviewParams previewParams,
+        public async Task<HttpResponseMessage> DownloadPdfAsync(
+            ReportParams reportParams,
             CancellationToken cancellationToken = default
         )
         {
-            string workspaceId = GetWorkspaceId(workspaceParams);
-            string reportId = GetReportId(reportParams);
-            var query = EncodeReportPreviewParams(previewParams);
+            string workspaceId = GetWorkspaceId(reportParams.Workspace);
+            string reportId = GetReportId(reportParams.Report);
+            var query = EncodeReportQueryParams(reportParams.QueryParams);
             return await Send(
                 new HttpRequestMessage(
                     HttpMethod.Get,
-                    ResolveEndpointURLWithApiPath(
-                        "/",
+                    ResolveEndpointUrl(
                         $"ws/{Uri.EscapeDataString(workspaceId)}/reports/{Uri.EscapeDataString(reportId)}/pdf",
                         query
                     )
@@ -176,64 +166,38 @@ namespace CxReports.ApiClient.V1
             );
         }
 
-        public async Task<List<Workspace>> GetWorkspaces(
+        public async Task<List<Workspace>> GetWorkspacesAsync(
             CancellationToken cancellationToken = default
         )
         {
-            return await GET<List<Workspace>>("workspaces", cancellationToken);
+            return await GET<List<Workspace>>(ResolveEndpointUrl("workspaces"), cancellationToken);
         }
 
         public async Task<NonceToken> CreateNonceAuthToken(
             CancellationToken cancellationToken = default
         )
         {
-            return await POST<NonceToken>("nonce-tokens", null, cancellationToken);
-        }
-
-        public async Task<TemporaryData> PushTemporaryData(
-            WorkspaceIdParams workspaceParams,
-            JsonObject content,
-            DateTimeOffset? expires = null,
-            CancellationToken cancellationToken = default
-        )
-        {
-            string workspaceId = GetWorkspaceId(workspaceParams);
-            var data = new { content, expiryDate = expires };
-            return await POST<TemporaryData>(
-                $"ws/{Uri.EscapeDataString(workspaceId)}/temporary-data",
-                JsonContent.Create(data),
+            return await POST<NonceToken>(
+                ResolveEndpointUrl("nonce-tokens"),
+                null,
                 cancellationToken
             );
         }
 
-        private static string BuildUrl(
-            string baseUrl,
-            string apiPath,
-            string endpointPath,
-            Dictionary<string, object?>? query = null
+        public async Task<TemporaryData> PushTemporaryData(
+            JsonObject content,
+            DateTimeOffset? expires = null,
+            WorkspaceId? workspace = null,
+            CancellationToken cancellationToken = default
         )
         {
-            var uriBuilder = new UriBuilder(baseUrl)
-            {
-                Path = apiPath.TrimEnd('/') + "/" + endpointPath.TrimStart('/')
-            };
-
-            if (query != null)
-            {
-                var queryString = new List<string>();
-                foreach (var kvp in query)
-                {
-                    if (kvp.Value != null)
-                    {
-                        queryString.Add(
-                            $"{Uri.EscapeDataString(kvp.Key)}={Uri.EscapeDataString(kvp.Value.ToString())}"
-                        );
-                    }
-                }
-                uriBuilder.Query = string.Join("&", queryString);
-            }
-
-            return uriBuilder.ToString();
+            string workspaceId = GetWorkspaceId(workspace);
+            var data = new { content, expiryDate = expires };
+            return await POST<TemporaryData>(
+                ResolveEndpointUrl($"ws/{Uri.EscapeDataString(workspaceId)}/temporary-data"),
+                JsonContent.Create(data),
+                cancellationToken
+            );
         }
     }
 }

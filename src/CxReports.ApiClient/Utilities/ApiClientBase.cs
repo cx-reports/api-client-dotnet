@@ -18,9 +18,17 @@ namespace CxReports.ApiClient.Utilities
         public ApiClientBase(HttpClient httpClient)
         {
             _httpClient = httpClient;
+            JsonSerializerOptions = CreateJsonSerializerOptions();
         }
 
         protected virtual void OnPrepareRequest(HttpRequestMessage request) { }
+
+        protected JsonSerializerOptions JsonSerializerOptions { get; set; }
+
+        protected virtual JsonSerializerOptions CreateJsonSerializerOptions()
+        {
+            return new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        }
 
         protected async Task<HttpResponseMessage> Send(
             HttpRequestMessage request,
@@ -68,7 +76,36 @@ namespace CxReports.ApiClient.Utilities
         protected async Task<T> ParseJsonResponse<T>(HttpResponseMessage response)
         {
             using var stream = await response.Content.ReadAsStreamAsync();
-            return JsonSerializer.Deserialize<T>(stream)!;
+            return JsonSerializer.Deserialize<T>(stream, JsonSerializerOptions)!;
+        }
+
+        protected static string BuildUrl(
+            string baseUrl,
+            string apiPath,
+            string endpointPath,
+            Dictionary<string, object?>? query = null
+        )
+        {
+            var uriBuilder = new UriBuilder(baseUrl)
+            {
+                Path = apiPath.TrimEnd('/') + "/" + endpointPath.TrimStart('/')
+            };
+
+            if (query != null)
+            {
+                var queryString = new List<string>();
+                foreach (var kvp in query)
+                {
+                    if (kvp.Value != null)
+                    {
+                        queryString.Add(
+                            $"{Uri.EscapeDataString(kvp.Key)}={Uri.EscapeDataString(kvp.Value.ToString())}"
+                        );
+                    }
+                }
+                uriBuilder.Query = string.Join("&", queryString);
+            }
+            return uriBuilder.ToString();
         }
     }
 }

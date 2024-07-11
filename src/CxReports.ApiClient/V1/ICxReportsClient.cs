@@ -8,41 +8,38 @@ using CxReports.ApiClient.V1.Models;
 
 namespace CxReports.ApiClient.V1
 {
+    public class ReportParams
+    {
+        public WorkspaceId? Workspace { get; set; }
+        public ReportId Report { get; set; } = null!;
+        public ReportQueryParams? QueryParams { get; set; }
+    }
+
     public interface ICxReportsClient
     {
         Task<NonceToken> CreateNonceAuthToken(CancellationToken cancellationToken = default);
 
-        Task<HttpResponseMessage> DownloadPDF(
-            WorkspaceIdParams workspaceParams,
-            ReportIdParams reportParams,
-            ReportPreviewParams previewParams,
+        Task<HttpResponseMessage> DownloadPdfAsync(
+            ReportParams reportParams,
             CancellationToken cancellationToken = default
         );
 
-        string GetReportPdfDownloadURL(
-            WorkspaceIdParams workspaceParams,
-            ReportIdParams reportParams,
-            ReportPreviewParams previewParams
-        );
+        string GetReportPdfDownloadUrl(ReportParams reportParams);
 
-        string GetReportPreviewURL(
-            WorkspaceIdParams workspaceParams,
-            ReportIdParams reportParams,
-            ReportPreviewParams previewParams
-        );
+        string GetReportPreviewUrl(ReportParams reportParam);
 
-        Task<IList<Report>> GetReports(
-            WorkspaceIdParams? workspace = null,
+        Task<IList<Report>> GetReportsAsync(
+            WorkspaceId? workspace = null,
             Dictionary<string, object?>? query = null,
             CancellationToken cancellationToken = default
         );
 
-        Task<List<Workspace>> GetWorkspaces(CancellationToken cancellationToken = default);
+        Task<List<Workspace>> GetWorkspacesAsync(CancellationToken cancellationToken = default);
 
         Task<TemporaryData> PushTemporaryData(
-            WorkspaceIdParams workspaceParams,
             JsonObject content,
             DateTimeOffset? expires = null,
+            WorkspaceId? workspace = null,
             CancellationToken cancellationToken = default
         );
     }
