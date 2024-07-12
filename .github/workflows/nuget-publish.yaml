@@ -1,0 +1,25 @@
+name: Publish NuGet Packages
+on:
+  push:
+    branches:
+      - master
+jobs:
+  publish_nuget:
+    name: Publish NuGet Packages
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - uses: actions/setup-dotnet@v3
+        with:
+            dotnet-version: '8.x.x'      
+      - run: dotnet build src/CxReports.ApiClient.sln --configuration Release
+#     - run: dotnet test src/CxReports.ApiClient.sln --configuration Release
+      - run: dotnet nuget push src/CxReports.ApiClient/bin/Release/*.nupkg --skip-duplicate --api-key ${{ secrets.NUGET_TOKEN }}
+       
+
+      

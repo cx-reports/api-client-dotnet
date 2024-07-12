@@ -4,7 +4,8 @@ using CxReports.ApiClient.V1;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+// copy appSettings.json.sample to appSettings.json and fill in the values
+var configuration = new ConfigurationBuilder().AddJsonFile("appSettings.json").Build();
 
 var serviceCollection = new ServiceCollection();
 serviceCollection.AddCxReportsApiClient(configuration);
