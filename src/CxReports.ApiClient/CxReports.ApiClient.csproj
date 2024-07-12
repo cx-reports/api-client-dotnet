@@ -5,9 +5,14 @@
     <Nullable>enable</Nullable>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<PackageId>CxReports.ApiClient</PackageId>
-	<Version>1.0.0</Version>
-	<Title>A .NET API client for CxReports</Title>
-	<PackageLicenseFile>License.txt</PackageLicenseFile>
+	<Version>1.0.0</Version>	  
+	<Title>CxReports API Client</Title>
+	<Description>Connect to the CxReports API from your .NET applications</Description>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
+	<PackageProjectUrl>https://github.com/cx-reports/api-client-dotnet</PackageProjectUrl>
+	<PackageTags>PDF Reporting Generator ApiClient CxReports</PackageTags>
+	<Authors>Codaxy d.o.o.</Authors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,9 +25,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="License.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+	  <None Include="../../README.md" Pack="true" PackagePath="/"/>
   </ItemGroup>
 
 </Project>
+

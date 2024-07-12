@@ -30,7 +30,9 @@ namespace CxReports.ApiClient.V1
 
         Task<IList<Report>> GetReportsAsync(
             WorkspaceId? workspace = null,
-            Dictionary<string, object?>? query = null,
+            string? type = null,
+            int? limit = null,
+            int? offset = null,
             CancellationToken cancellationToken = default
         );
 

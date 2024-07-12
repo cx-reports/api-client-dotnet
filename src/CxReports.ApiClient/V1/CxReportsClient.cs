@@ -85,10 +85,18 @@ namespace CxReports.ApiClient.V1
 
         public async Task<IList<Report>> GetReportsAsync(
             WorkspaceId? workspace,
-            Dictionary<string, object?>? query = null,
+            string? type = null,
+            int? limit = null,
+            int? offset = null,
             CancellationToken cancellationToken = default
         )
         {
+            var query = new Dictionary<string, object?>()
+            {
+                ["type"] = type,
+                ["limit"] = limit,
+                ["offset"] = offset
+            };
             string workspaceId = GetWorkspaceId(workspace);
             return await GET<IList<Report>>(
                 ResolveEndpointUrl($"ws/{Uri.EscapeDataString(workspaceId)}/reports", query),
@@ -154,16 +162,11 @@ namespace CxReports.ApiClient.V1
             string workspaceId = GetWorkspaceId(reportParams.Workspace);
             string reportId = GetReportId(reportParams.Report);
             var query = EncodeReportQueryParams(reportParams.QueryParams);
-            return await Send(
-                new HttpRequestMessage(
-                    HttpMethod.Get,
-                    ResolveEndpointUrl(
-                        $"ws/{Uri.EscapeDataString(workspaceId)}/reports/{Uri.EscapeDataString(reportId)}/pdf",
-                        query
-                    )
-                ),
-                cancellationToken
+            var url = ResolveEndpointUrl(
+                $"ws/{Uri.EscapeDataString(workspaceId)}/reports/{Uri.EscapeDataString(reportId)}/pdf",
+                query
             );
+            return await Send(new HttpRequestMessage(HttpMethod.Get, url), cancellationToken);
         }
 
         public async Task<List<Workspace>> GetWorkspacesAsync(

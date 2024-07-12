@@ -96,12 +96,12 @@ namespace CxReports.ApiClient.Utilities
                 var queryString = new List<string>();
                 foreach (var kvp in query)
                 {
-                    if (kvp.Value != null)
-                    {
-                        queryString.Add(
-                            $"{Uri.EscapeDataString(kvp.Key)}={Uri.EscapeDataString(kvp.Value.ToString())}"
-                        );
-                    }
+                    if (kvp.Value == null)
+                        continue;
+
+                    queryString.Add(
+                        $"{Uri.EscapeDataString(kvp.Key)}={Uri.EscapeDataString(kvp.Value.ToString())}"
+                    );
                 }
                 uriBuilder.Query = string.Join("&", queryString);
             }
