@@ -16,10 +16,11 @@ jobs:
 
       - uses: actions/setup-dotnet@v3
         with:
-            dotnet-version: '8.x.x'      
+            dotnet-version: '8.x.x'     
+      - run: dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
       - run: dotnet build src/CxReports.ApiClient.sln --configuration Release
 #     - run: dotnet test src/CxReports.ApiClient.sln --configuration Release
-      - run: dotnet nuget push src/CxReports.ApiClient/bin/Release/*.nupkg --skip-duplicate --api-key ${{ secrets.NUGET_TOKEN }}
+      - run: dotnet nuget push src/CxReports.ApiClient/bin/Release/*.nupkg --skip-duplicate --source nuget.org --api-key ${{ secrets.NUGET_TOKEN }}
        
 
       
