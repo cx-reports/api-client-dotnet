@@ -25,7 +25,7 @@ var cxReports = serviceProvider.GetRequiredService<ICxReportsClient>();
 Now you can interact with the CxReports API:
 
 ```csharp
-// list all reports for a default workspace
+// list all reports for the default workspace
 var reports = await cxReports.GetReportsAsync();
 
 // list all workspaces
