@@ -1,7 +1,9 @@
 ﻿{
-    "CxReports": {
-        "BaseUrl": "[address-of-your-server]",
-        "AuthToken": "[address-of-your-server]",
-        "DefaultWorkspaceId": null // optional workspace id or code
-    }
+  "CxReports": {
+    "BaseUrl": "[address-of-your-server]",
+    "AuthToken": "[address-of-your-server]",
+    "DefaultWorkspaceId": null, // optional workspace id 
+    "DefaultWorkspaceCode": null, // optional workspace code,
+    "DefaultTimezone":  null // optional timezone, i.e. GMT
+  }
 }

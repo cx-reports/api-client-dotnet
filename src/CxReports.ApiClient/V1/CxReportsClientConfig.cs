@@ -8,6 +8,8 @@ namespace CxReports.ApiClient.V1
     {
         public string BaseUrl { get; set; } = null!;
         public string AuthToken { get; set; } = null!;
-        public string? DefaultWorkspaceId { get; set; }
+        public int? DefaultWorkspaceId { get; set; }
+        public string? DefaultWorkspaceCode { get; set; }
+        public string? DefaultTimezone { get; set; }
     }
 }

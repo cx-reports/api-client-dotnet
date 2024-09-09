@@ -32,6 +32,7 @@ namespace CxReports.ApiClient.V1
         public JsonObject? Data { get; set; }
         public int? TempDataId { get; set; }
         public string? Nonce { get; set; }
+        public string? Timezone { get; set; }
     }
 
     public class CxReportsClient : ApiClientBase, ICxReportsClient
@@ -73,12 +74,16 @@ namespace CxReports.ApiClient.V1
 
         protected string GetDefaultWorkspaceId()
         {
-            if (string.IsNullOrEmpty(_config.DefaultWorkspaceId))
-                throw new MissingWorkspaceIdException();
-            return _config.DefaultWorkspaceId;
+            if (_config.DefaultWorkspaceId != null)
+                return _config.DefaultWorkspaceId.ToString();
+
+            if (!string.IsNullOrEmpty(_config.DefaultWorkspaceCode))
+                return _config.DefaultWorkspaceCode;
+
+            throw new MissingWorkspaceIdException();
         }
 
-        protected string GetWorkspaceId(WorkspaceId? workspace = null)
+        protected string GetWorkspaceId(WorkspaceId? workspace)
         {
             return workspace?.Id?.ToString() ?? workspace?.Code ?? GetDefaultWorkspaceId();
         }
@@ -127,6 +132,10 @@ namespace CxReports.ApiClient.V1
                 result["nonce"] = query.Nonce;
             if (query.TempDataId != null)
                 result["tempDataId"] = query.TempDataId.ToString();
+            if (query.Timezone != null)
+                result["timezone"] = query.Timezone;
+            else if (_config.DefaultTimezone != null)
+                result["timezone"] = _config.DefaultTimezone;
 
             return result.Count > 0 ? result : null;
         }

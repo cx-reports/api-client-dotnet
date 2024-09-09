@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<PackageId>CxReports.ApiClient</PackageId>
-	<Version>1.0.1</Version>	  
+	<Version>1.1.0</Version>	  
 	<Title>CxReports API Client</Title>
 	<Description>Connect to the CxReports API from your .NET applications</Description>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
