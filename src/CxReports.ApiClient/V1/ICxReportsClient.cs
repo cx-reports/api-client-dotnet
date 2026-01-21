@@ -44,5 +44,68 @@ namespace CxReports.ApiClient.V1
             WorkspaceId? workspace = null,
             CancellationToken cancellationToken = default
         );
+
+        Task<IList<ReportType>> GetReportTypesAsync(
+            WorkspaceId? workspace,
+            CancellationToken cancellationToken = default
+        );
+
+        Task<IList<ReportPage>> GetReportPagesAsync(
+            WorkspaceId? workspace,
+            ReportId report,
+            CancellationToken cancellationToken = default
+        );
+
+        Task<AsyncReportGenerationResponse> StartReportExportAsync(
+            WorkspaceId? workspace,
+            ReportId report,
+            AsyncReportGenerationRequest parameters,
+            CancellationToken cancellationToken = default
+        );
+
+        Task<ReportExportStatusResponse> GetReportExportStatusAsync(
+            WorkspaceId? workspace,
+            int tempFileId,
+            CancellationToken cancellationToken = default
+        );
+
+        Task<HttpResponseMessage> DownloadExportedFileAsync(
+            WorkspaceId? workspace,
+            int tempFileId,
+            CancellationToken cancellationToken = default
+        );
+
+        Task<IList<Job>> GetAllJobsAsync(
+            WorkspaceId? workspace,
+            CancellationToken cancellationToken = default
+        );
+
+        Task<JobRun> StartJobRunAsync(
+            WorkspaceId? workspace,
+            JobKey job,
+            JobRunRequest request,
+            CancellationToken cancellationToken = default
+        );
+
+        Task<JobRunStatus> GetJobRunStatusAsync(
+            WorkspaceId? workspace,
+            JobKey job,
+            int jobRunId,
+            CancellationToken cancellationToken = default
+        );
+
+        Task<AsyncReportGenerationResponse> GetJobReviewDocumentAsync(
+            WorkspaceId? workspace,
+            JobKey job,
+            int jobRunId,
+            CancellationToken cancellationToken = default
+        );
+
+        Task<HttpResponseMessage> DeliverJobRunAsync(
+            WorkspaceId? workspace,
+            JobKey job,
+            int jobRunId,
+            CancellationToken cancellationToken = default
+        );
     }
 }
