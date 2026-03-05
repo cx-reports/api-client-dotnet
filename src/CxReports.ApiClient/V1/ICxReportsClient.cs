@@ -107,5 +107,15 @@ namespace CxReports.ApiClient.V1
             int jobRunId,
             CancellationToken cancellationToken = default
         );
+
+        Task<IList<ThemeItem>> GetThemesAsync(
+            WorkspaceId? workspace,
+            CancellationToken cancellationToken = default
+        );
+
+        Task<IList<TemplateItem>> GetReportTemplatesAsync(
+            WorkspaceId? workspace,
+            CancellationToken cancellationToken = default
+        );
     }
 }

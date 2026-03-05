@@ -1,4 +1,4 @@
-﻿using CxReports.ApiClient.Exceptions;
+using CxReports.ApiClient.Exceptions;
 using CxReports.ApiClient.Utilities;
 using CxReports.ApiClient.V1.Models;
 using System;
@@ -32,6 +32,8 @@ namespace CxReports.ApiClient.V1
         public int? TempDataId { get; set; }
         public string? Nonce { get; set; }
         public string? Timezone { get; set; }
+        public string? Theme { get; set; }
+        public string? Template { get; set; }
     }
 
     public class CxReportsClient : ApiClientBase, ICxReportsClient
@@ -141,6 +143,10 @@ namespace CxReports.ApiClient.V1
                 result["timezone"] = query.Timezone;
             else if (_config.DefaultTimezone != null)
                 result["timezone"] = _config.DefaultTimezone;
+            if (query.Theme != null)
+                result["theme"] = query.Theme;
+            if (query.Template != null)
+                result["template"] = query.Template;
 
             return result.Count > 0 ? result : null;
         }
@@ -359,6 +365,30 @@ namespace CxReports.ApiClient.V1
                 $"ws/{Uri.EscapeDataString(workspaceId)}/jobs/{Uri.EscapeDataString(jobId)}/runs/{jobRunId}/deliver"
             );
             return await Send(new HttpRequestMessage(HttpMethod.Post, url), cancellationToken);
+        }
+
+        public async Task<IList<ThemeItem>> GetThemesAsync(
+            WorkspaceId? workspace,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var workspaceId = GetWorkspaceId(workspace);
+            return await GET<IList<ThemeItem>>(
+                ResolveEndpointUrl($"ws/{Uri.EscapeDataString(workspaceId)}/themes"),
+                cancellationToken
+            );
+        }
+
+        public async Task<IList<TemplateItem>> GetReportTemplatesAsync(
+            WorkspaceId? workspace,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var workspaceId = GetWorkspaceId(workspace);
+            return await GET<IList<TemplateItem>>(
+                ResolveEndpointUrl($"ws/{Uri.EscapeDataString(workspaceId)}/templates"),
+                cancellationToken
+            );
         }
     }
 }
