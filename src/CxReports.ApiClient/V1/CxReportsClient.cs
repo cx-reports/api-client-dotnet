@@ -1,16 +1,15 @@
-﻿using System;
+using CxReports.ApiClient.Exceptions;
+using CxReports.ApiClient.Utilities;
+using CxReports.ApiClient.V1.Models;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
-using CxReports.ApiClient.Exceptions;
-using CxReports.ApiClient.Utilities;
-using CxReports.ApiClient.V1.Models;
 
 namespace CxReports.ApiClient.V1
 {
@@ -33,6 +32,8 @@ namespace CxReports.ApiClient.V1
         public int? TempDataId { get; set; }
         public string? Nonce { get; set; }
         public string? Timezone { get; set; }
+        public string? Theme { get; set; }
+        public string? Template { get; set; }
     }
 
     public class CxReportsClient : ApiClientBase, ICxReportsClient
@@ -88,6 +89,15 @@ namespace CxReports.ApiClient.V1
             return workspace?.Id?.ToString() ?? workspace?.Code ?? GetDefaultWorkspaceId();
         }
 
+        protected string GetJobId(JobKey? job)
+        {
+            return job?.Id?.ToString()
+                   ?? job?.Code
+                   ?? throw new CxReportsException(
+                       "Invalid job identification. Missing either job id or code."
+                   );
+        }
+
         public async Task<IList<Report>> GetReportsAsync(
             WorkspaceId? workspace,
             string? type = null,
@@ -113,9 +123,9 @@ namespace CxReports.ApiClient.V1
         {
             string? reportId = report?.Id?.ToString() ?? report?.TypeCode;
             return reportId
-                ?? throw new CxReportsException(
-                    "Invalid report identification. Missing either reportId or reportType."
-                );
+                   ?? throw new CxReportsException(
+                       "Invalid report identification. Missing either reportId or reportType."
+                   );
         }
 
         protected Dictionary<string, object?>? EncodeReportQueryParams(ReportQueryParams? query)
@@ -136,6 +146,10 @@ namespace CxReports.ApiClient.V1
                 result["timezone"] = query.Timezone;
             else if (_config.DefaultTimezone != null)
                 result["timezone"] = _config.DefaultTimezone;
+            if (query.Theme != null)
+                result["theme"] = query.Theme;
+            if (query.Template != null)
+                result["template"] = query.Template;
 
             return result.Count > 0 ? result : null;
         }
@@ -178,6 +192,25 @@ namespace CxReports.ApiClient.V1
             return await Send(new HttpRequestMessage(HttpMethod.Get, url), cancellationToken);
         }
 
+        public async Task<HttpResponseMessage> ExportPdfAsync(
+            WorkspaceId? workspace,
+            ReportId report,
+            ReportExportRequest request,
+            CancellationToken cancellationToken = default
+        )
+        {
+            string workspaceId = GetWorkspaceId(workspace);
+            string reportId = GetReportId(report);
+            var url = ResolveEndpointUrl(
+                $"ws/{Uri.EscapeDataString(workspaceId)}/reports/{Uri.EscapeDataString(reportId)}/pdf"
+            );
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
+            {
+                Content = JsonContent.Create(request, options: JsonSerializerOptions)
+            };
+            return await Send(httpRequest, cancellationToken);
+        }
+
         public async Task<List<Workspace>> GetWorkspacesAsync(
             CancellationToken cancellationToken = default
         )
@@ -207,7 +240,175 @@ namespace CxReports.ApiClient.V1
             var data = new { content, expiryDate = expires };
             return await POST<TemporaryData>(
                 ResolveEndpointUrl($"ws/{Uri.EscapeDataString(workspaceId)}/temporary-data"),
-                JsonContent.Create(data),
+                JsonContent.Create(data, options: JsonSerializerOptions),
+                cancellationToken
+            );
+        }
+
+        public async Task<IList<ReportType>> GetReportTypesAsync(
+            WorkspaceId? workspace = null, CancellationToken cancellationToken = default
+        )
+        {
+            var workspaceId = GetWorkspaceId(workspace);
+            return await GET<IList<ReportType>>(
+                ResolveEndpointUrl($"ws/{Uri.EscapeDataString(workspaceId)}/report-types"), cancellationToken);
+        }
+
+        public async Task<IList<ReportPage>> GetReportPagesAsync(
+            WorkspaceId? workspace,
+            ReportId report,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var workspaceId = GetWorkspaceId(workspace);
+            var reportId = GetReportId(report);
+            return await GET<IList<ReportPage>>(
+                ResolveEndpointUrl(
+                    $"ws/{Uri.EscapeDataString(workspaceId)}/reports/{Uri.EscapeDataString(reportId)}/pages"),
+                cancellationToken);
+        }
+
+        public async Task<AsyncReportGenerationResponse> StartReportExportAsync(
+            WorkspaceId? workspace,
+            ReportId report,
+            AsyncReportGenerationRequest parameters,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var workspaceId = GetWorkspaceId(workspace);
+            var reportId = GetReportId(report);
+            var body = JsonContent.Create(parameters, options: JsonSerializerOptions);
+            return await POST<AsyncReportGenerationResponse>(
+                ResolveEndpointUrl(
+                    $"ws/{Uri.EscapeDataString(workspaceId)}/reports/{Uri.EscapeDataString(reportId)}/export"),
+                body, cancellationToken);
+        }
+
+        public async Task<ReportExportStatusResponse> GetReportExportStatusAsync(
+            WorkspaceId? workspace,
+            int tempFileId,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var workspaceId = GetWorkspaceId(workspace);
+            return await GET<ReportExportStatusResponse>(
+                ResolveEndpointUrl($"ws/{Uri.EscapeDataString(workspaceId)}/exports/{tempFileId}/status"),
+                cancellationToken
+            );
+        }
+
+        public async Task<HttpResponseMessage> DownloadExportedFileAsync(
+            WorkspaceId? workspace,
+            int tempFileId,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var workspaceId = GetWorkspaceId(workspace);
+            var url = ResolveEndpointUrl($"ws/{Uri.EscapeDataString(workspaceId)}/exports/{tempFileId}/content");
+            return await Send(new HttpRequestMessage(HttpMethod.Get, url), cancellationToken);
+        }
+
+        public async Task<IList<Job>> GetAllJobsAsync(
+            WorkspaceId? workspace = null,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var workspaceId = GetWorkspaceId(workspace);
+            return await GET<IList<Job>>(
+                ResolveEndpointUrl(
+                    $"ws/{Uri.EscapeDataString(workspaceId)}/jobs"
+                ),
+                cancellationToken
+            );
+        }
+
+        public async Task<JobRun> StartJobRunAsync(
+            WorkspaceId? workspace,
+            JobKey job,
+            JobRunRequest request,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var workspaceId = GetWorkspaceId(workspace);
+            var jobId = GetJobId(job);
+            return await POST<JobRun>(
+                ResolveEndpointUrl(
+                    $"ws/{Uri.EscapeDataString(workspaceId)}/jobs/{Uri.EscapeDataString(jobId)}/runs"
+                ),
+                JsonContent.Create(request, options: JsonSerializerOptions),
+                cancellationToken
+            );
+        }
+
+        public async Task<JobRunStatus> GetJobRunStatusAsync(
+            WorkspaceId? workspace,
+            JobKey job,
+            int jobRunId,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var workspaceId = GetWorkspaceId(workspace);
+            var jobId = GetJobId(job);
+            return await GET<JobRunStatus>(
+                ResolveEndpointUrl(
+                    $"ws/{Uri.EscapeDataString(workspaceId)}/jobs/{Uri.EscapeDataString(jobId)}/runs/{jobRunId}/status"
+                ), cancellationToken
+            );
+        }
+
+        public async Task<AsyncReportGenerationResponse> GetJobReviewDocumentAsync(
+            WorkspaceId? workspace,
+            JobKey job,
+            int jobRunId,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var workspaceId = GetWorkspaceId(workspace);
+            var jobId = GetJobId(job);
+            return await POST<AsyncReportGenerationResponse>(
+                ResolveEndpointUrl(
+                    $"ws/{Uri.EscapeDataString(workspaceId)}/jobs/{Uri.EscapeDataString(jobId)}/runs/{jobRunId}/generate-review-document"
+                ),
+                null,
+                cancellationToken
+            );
+        }
+
+        public async Task<HttpResponseMessage> DeliverJobRunAsync(
+            WorkspaceId? workspace,
+            JobKey job,
+            int jobRunId,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var workspaceId = GetWorkspaceId(workspace);
+            var jobId = GetJobId(job);
+            var url = ResolveEndpointUrl(
+                $"ws/{Uri.EscapeDataString(workspaceId)}/jobs/{Uri.EscapeDataString(jobId)}/runs/{jobRunId}/deliver"
+            );
+            return await Send(new HttpRequestMessage(HttpMethod.Post, url), cancellationToken);
+        }
+
+        public async Task<IList<ThemeItem>> GetThemesAsync(
+            WorkspaceId? workspace = null,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var workspaceId = GetWorkspaceId(workspace);
+            return await GET<IList<ThemeItem>>(
+                ResolveEndpointUrl($"ws/{Uri.EscapeDataString(workspaceId)}/themes"),
+                cancellationToken
+            );
+        }
+
+        public async Task<IList<TemplateItem>> GetReportTemplatesAsync(
+            WorkspaceId? workspace = null,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var workspaceId = GetWorkspaceId(workspace);
+            return await GET<IList<TemplateItem>>(
+                ResolveEndpointUrl($"ws/{Uri.EscapeDataString(workspaceId)}/templates"),
                 cancellationToken
             );
         }
