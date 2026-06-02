@@ -5,5 +5,11 @@
     "DefaultWorkspaceId": null, // optional workspace id 
     "DefaultWorkspaceCode": null, // optional workspace code,
     "DefaultTimezone":  null // optional timezone, i.e. GMT
+  },
+  "Playground": {
+    "ReportId": 18623, // report id used by the ConsolePlay exercises
+    "RunMutatingJobTests": false, // set true to start/deliver a real job run (outward-facing!)
+    "JobId": null, // optional job id for the mutating job tests
+    "JobCode": null // optional job code for the mutating job tests
   }
 }

@@ -11,7 +11,7 @@ namespace CxReports.ApiClient.V1.Models
         public string? ErrorMessage { get; set; }
         public DateTimeOffset? ExpiryTime { get; set; }
         public string? Name { get; set; }
-        public long ContentSize { get; set; }
+        public long? ContentSize { get; set; }
         public string? ContentType { get; set; }
     }
 }

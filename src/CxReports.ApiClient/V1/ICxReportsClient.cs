@@ -24,6 +24,13 @@ namespace CxReports.ApiClient.V1
             CancellationToken cancellationToken = default
         );
 
+        Task<HttpResponseMessage> ExportPdfAsync(
+            WorkspaceId? workspace,
+            ReportId report,
+            ReportExportRequest request,
+            CancellationToken cancellationToken = default
+        );
+
         string GetReportPdfDownloadUrl(ReportParams reportParams);
 
         string GetReportPreviewUrl(ReportParams reportParam);

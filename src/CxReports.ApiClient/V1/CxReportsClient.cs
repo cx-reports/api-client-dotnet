@@ -189,6 +189,25 @@ namespace CxReports.ApiClient.V1
             return await Send(new HttpRequestMessage(HttpMethod.Get, url), cancellationToken);
         }
 
+        public async Task<HttpResponseMessage> ExportPdfAsync(
+            WorkspaceId? workspace,
+            ReportId report,
+            ReportExportRequest request,
+            CancellationToken cancellationToken = default
+        )
+        {
+            string workspaceId = GetWorkspaceId(workspace);
+            string reportId = GetReportId(report);
+            var url = ResolveEndpointUrl(
+                $"ws/{Uri.EscapeDataString(workspaceId)}/reports/{Uri.EscapeDataString(reportId)}/pdf"
+            );
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
+            {
+                Content = JsonContent.Create(request, options: JsonSerializerOptions)
+            };
+            return await Send(httpRequest, cancellationToken);
+        }
+
         public async Task<List<Workspace>> GetWorkspacesAsync(
             CancellationToken cancellationToken = default
         )
@@ -218,7 +237,7 @@ namespace CxReports.ApiClient.V1
             var data = new { content, expiryDate = expires };
             return await POST<TemporaryData>(
                 ResolveEndpointUrl($"ws/{Uri.EscapeDataString(workspaceId)}/temporary-data"),
-                JsonContent.Create(data),
+                JsonContent.Create(data, options: JsonSerializerOptions),
                 cancellationToken
             );
         }
@@ -255,7 +274,7 @@ namespace CxReports.ApiClient.V1
         {
             var workspaceId = GetWorkspaceId(workspace);
             var reportId = GetReportId(report);
-            var body = JsonContent.Create(parameters);
+            var body = JsonContent.Create(parameters, options: JsonSerializerOptions);
             return await POST<AsyncReportGenerationResponse>(
                 ResolveEndpointUrl(
                     $"ws/{Uri.EscapeDataString(workspaceId)}/reports/{Uri.EscapeDataString(reportId)}/export"),
@@ -313,7 +332,7 @@ namespace CxReports.ApiClient.V1
                 ResolveEndpointUrl(
                     $"ws/{Uri.EscapeDataString(workspaceId)}/jobs/{Uri.EscapeDataString(jobId)}/runs"
                 ),
-                JsonContent.Create(request),
+                JsonContent.Create(request, options: JsonSerializerOptions),
                 cancellationToken
             );
         }
