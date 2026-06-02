@@ -91,8 +91,11 @@ namespace CxReports.ApiClient.V1
 
         protected string GetJobId(JobKey? job)
         {
-            return job?.Id?.ToString() ??
-                   job?.Code ?? throw new InvalidOperationException("Could not find Job Id or Code");
+            return job?.Id?.ToString()
+                   ?? job?.Code
+                   ?? throw new CxReportsException(
+                       "Invalid job identification. Missing either job id or code."
+                   );
         }
 
         public async Task<IList<Report>> GetReportsAsync(
@@ -243,7 +246,7 @@ namespace CxReports.ApiClient.V1
         }
 
         public async Task<IList<ReportType>> GetReportTypesAsync(
-            WorkspaceId? workspace, CancellationToken cancellationToken = default
+            WorkspaceId? workspace = null, CancellationToken cancellationToken = default
         )
         {
             var workspaceId = GetWorkspaceId(workspace);
@@ -306,7 +309,7 @@ namespace CxReports.ApiClient.V1
         }
 
         public async Task<IList<Job>> GetAllJobsAsync(
-            WorkspaceId? workspace,
+            WorkspaceId? workspace = null,
             CancellationToken cancellationToken = default
         )
         {
@@ -387,7 +390,7 @@ namespace CxReports.ApiClient.V1
         }
 
         public async Task<IList<ThemeItem>> GetThemesAsync(
-            WorkspaceId? workspace,
+            WorkspaceId? workspace = null,
             CancellationToken cancellationToken = default
         )
         {
@@ -399,7 +402,7 @@ namespace CxReports.ApiClient.V1
         }
 
         public async Task<IList<TemplateItem>> GetReportTemplatesAsync(
-            WorkspaceId? workspace,
+            WorkspaceId? workspace = null,
             CancellationToken cancellationToken = default
         )
         {

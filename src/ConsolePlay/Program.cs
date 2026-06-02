@@ -143,7 +143,7 @@ var exportPdfResponse = await cxReports.ExportPdfAsync(
     new() { Id = reportId },
     new ReportExportRequest
     {
-        Data = JsonSerializer.SerializeToDocument(JsonNode.Parse(json)),
+        Data = (JsonObject)JsonNode.Parse(json)!,
         Format = DocumentFileFormat.PDF,
         IncludeAttachments = false
     }
@@ -162,7 +162,7 @@ var asyncExport = await cxReports.StartReportExportAsync(
     new() { Id = reportId },
     new AsyncReportGenerationRequest
     {
-        Data = JsonSerializer.SerializeToDocument(JsonNode.Parse(json)),
+        Data = (JsonObject)JsonNode.Parse(json)!,
         Format = DocumentFileFormat.PDF,
         IncludeAttachments = false
     }
@@ -176,7 +176,7 @@ do
     status = await cxReports.GetReportExportStatusAsync(null, asyncExport.TemporaryFileId);
     Console.WriteLine($"Status: {status.Status} (ready: {status.IsReady})");
 }
-while (!status.IsReady && status.Status != "Failed");
+while (!status.IsReady && status.Status != ReportExportStatus.Failed);
 
 if (status.IsReady)
 {
@@ -212,7 +212,7 @@ if (runMutatingJobTests && (jobId != null || jobCode != null || jobs.Count > 0))
     var jobRun = await cxReports.StartJobRunAsync(
         null,
         jobKey,
-        new JobRunRequest { Data = JsonSerializer.SerializeToDocument(JsonNode.Parse(json)) }
+        new JobRunRequest { Data = (JsonObject)JsonNode.Parse(json)! }
     );
     Console.WriteLine($"Job run id: {jobRun.JobRunId}");
 

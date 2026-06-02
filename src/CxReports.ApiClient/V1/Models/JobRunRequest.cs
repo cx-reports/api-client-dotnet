@@ -1,10 +1,10 @@
-﻿using System.Text.Json;
+﻿using System.Text.Json.Nodes;
 
 namespace CxReports.ApiClient.V1.Models
 {
     public class JobRunRequest
     {
-        public JsonDocument? Params { get; set; }
-        public JsonDocument? Data { get; set; }
+        public JsonObject? Params { get; set; }
+        public JsonObject? Data { get; set; }
     }
 }

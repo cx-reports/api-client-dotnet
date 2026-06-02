@@ -1,13 +1,13 @@
 using System.Collections.Generic;
-using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace CxReports.ApiClient.V1.Models
 {
     public class AsyncReportGenerationRequest
     {
-        public JsonDocument? Params { get; set; }
-        public JsonDocument? Data { get; set; }
+        public JsonObject? Params { get; set; }
+        public JsonObject? Data { get; set; }
         public string? Lang { get; set; }
         public string? Timezone { get; set; }
 
