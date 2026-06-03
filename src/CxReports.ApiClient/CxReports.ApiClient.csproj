@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<PackageId>CxReports.ApiClient</PackageId>
-	<Version>1.2.0</Version>
+	<Version>1.2.1</Version>
 	<Title>CxReports API Client</Title>
 	<Description>Connect to the CxReports API from your .NET applications</Description>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -16,16 +16,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.8" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
-    <PackageReference Include="System.Text.Json" Version="8.0.4" />
+    <PackageReference Include="System.Net.Http.Json" Version="10.0.8" />
+    <PackageReference Include="System.Text.Json" Version="10.0.8" />
   </ItemGroup>
 
   <ItemGroup>
-	  <None Include="../../README.md" Pack="true" PackagePath="/"/>
+	  <None Include="../../README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
 
 </Project>
